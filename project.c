@@ -106,33 +106,33 @@ int instruction_decode(unsigned op, struct_controls *controls) //Trevor
 {
   switch op {
     case 0:  //R-Type
-      controls -> RegDst = ;
-      controls -> Jump = ;
-      controls -> Branch = ;
-      controls -> MemRead = ;
-      controls -> MemToReg = ;
+      controls -> RegDst = 1;
+      controls -> Jump = 0;
+      controls -> Branch = 0;
+      controls -> MemRead = 0;
+      controls -> MemToReg = 0;
       controls -> ALUOp = ;
-      controls -> MemWrite = ;
+      controls -> MemWrite = 0;
       controls -> ALUSrc = ;
-      controls -> RegWrite = ;
+      controls -> RegWrite = 1;
       break;
     case 2:  //j  jump
-      controls -> RegDst = ;
-      controls -> Jump = ;
-      controls -> Branch = ;
-      controls -> MemRead = ;
-      controls -> MemToReg = ;
-      controls -> ALUOp = ;
-      controls -> MemWrite = ;
-      controls -> ALUSrc = ;
-      controls -> RegWrite = ;
+      controls -> RegDst = 0;
+      controls -> Jump = 1;
+      controls -> Branch = 0;
+      controls -> MemRead = 0;
+      controls -> MemToReg = 0;
+      controls -> ALUOp = 0;
+      controls -> MemWrite = 0;
+      controls -> ALUSrc = 0;
+      controls -> RegWrite = 0;
       break;
     case 4:  //beq  branch on equal
-      controls -> RegDst = ;
+      controls -> RegDst = 0;
       controls -> Jump = ;
-      controls -> Branch = ;
-      controls -> MemRead = ;
-      controls -> MemToReg = ;
+      controls -> Branch = 1;
+      controls -> MemRead = 0;
+      controls -> MemToReg = 0;
       controls -> ALUOp = ;
       controls -> MemWrite = ;
       controls -> ALUSrc = ;
