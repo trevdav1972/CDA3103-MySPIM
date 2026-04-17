@@ -205,12 +205,9 @@ int instruction_decode(unsigned op, struct_controls *controls) //Trevor
       controls -> RegWrite = ;
       break;
     default:
-      //Should not happen
-      break;
+      return 1;
   }
-  //return 1 if a halt condition occurs
-  //return 0 otherwise
-	return -1;  //placeholder
+	return 0;
 }
 
 /* Read Register */
@@ -224,7 +221,11 @@ void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigne
 /* Sign Extend */
 /* 10 Points */
 void sign_extend(unsigned offset,unsigned *extended_value) {
-
+	if (offset <= 0b1000000000000000) {
+		*extended_value = offset;
+	} else {
+		*extended_value = offset + 0xFFFF0000;
+	}
 }
 
 /* ALU operations */
