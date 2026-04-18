@@ -207,7 +207,7 @@ void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char
 Zero,unsigned *PC) {
 	*PC += 4;
 	if (Jump) {
-		*PC = (*PC & 0xF0000000) + (jsec << 2);	//first 4 bits of pc, jsec, 2 bits of 0
+		*PC = ((*PC & 0xF0000000) + jsec) << 2;	//first 4 bits of pc, jsec, 2 bits of 0
 	} else {
 		if (Branch && Zero)
 			*PC += (extended_value << 2);
