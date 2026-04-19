@@ -126,7 +126,6 @@ int instruction_decode(unsigned op, struct_controls *controls) //Trevor		I'm bei
 		    controls -> Branch = 1;
 		    break;
 		case 8:  //addi  add immediate
-		    controls -> RegDst = 1;
 		    controls -> ALUSrc = 1;
 		    controls -> RegWrite = 1;
 		    break;
@@ -198,7 +197,8 @@ int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsig
 /* Write Register */
 /* 10 Points */
 void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,char RegWrite,char RegDst,char MemtoReg,unsigned *Reg) {
-
+	if (RegWrite)
+		Reg[ (RegDst) ? r3 : r2 ] = (MemtoReg) ? memdata : ALUresult;
 }
 
 /* PC update */
