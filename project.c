@@ -1,8 +1,8 @@
 #include "spimcore.h"
 
-/* ALU */ALU, instruction_decode, ALU_operations, rw_memory, instruction_fetch.
+/* ALU */
 /* 10 Points */
-void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero) //Trevor
+void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 {
   // ADD
   if (ALUControl == 0) { 
@@ -73,16 +73,15 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero) /
 
 /* instruction fetch */
 /* 10 Points */
-int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction) // Treycen
-{
-
+int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction) {
+	if (PC < 0 || (PC >> 2) >= MEMSIZE)	return 1;	//address out of bounds
+	*instruction = Mem(PC);
 	return 0;
 }
 
 /* instruction partition */
 /* 10 Points */
 void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsigned *r2, unsigned *r3, unsigned *funct, unsigned *offset, unsigned *jsec) {
-  //should be fully functional; see note about shamt
   *op = instruction >> 26;  //instruction [31-26]
 
   *jsec = (instruction << 6) >> 6;  //instruction [25-0]
@@ -90,17 +89,14 @@ void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsi
   *r1 = (instruction << 6) >> 27;  //instruction [25-21]
   *r2 = (instruction << 11) >> 27;  //instruction [20-16]
   *r3 = (instruction << 16) >> 27;  //instruction [15-11]
-      
-  unsigned shamt = (instruction << 21) >> 27;  //instruction [10-6]    idek if we need this for this assignment, since it doesnt exists in the 
-                                                                        //datapath signals in spimcore.c but i figured id add it and we can assign it to an actual value if needed
+	
   *funct = (instruction >> 26) << 26;  //instruction [5-0]
   *offset = (instruction << 16) >> 16;	//instruction [15-0]
 }
 
 /* instruction decode */
 /* 15 Points */
-int instruction_decode(unsigned op, struct_controls *controls) //Trevor		I'm being deadass I finished doing this whole function before reading
-{																		 // that you put your name here so uhhhhhh	
+int instruction_decode(unsigned op, struct_controls *controls)  {
 	//set base controls to zero
 	controls -> RegDst = 0;
     cntrols -> Jump = 0;
@@ -164,7 +160,6 @@ int instruction_decode(unsigned op, struct_controls *controls) //Trevor		I'm bei
 void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigned *data2) {
   *data1 = Reg[r1];
   *data2 = Reg[r2];
-  //that... feels too easy though....
 }
 
 /* Sign Extend */
@@ -188,8 +183,7 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 
 /* Read / Write Memory */
 /* 10 Points */
-int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem) // Trevor
-{
+int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem) {
 	if (ALUresult < 0 || (ALUresult >> 2) >= MEMSIZE)	return 1;	//address out of bounds
 	
 	if ( MemRead ) *memdata = Mem(ALUresult);	//load from memory
@@ -207,11 +201,10 @@ void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,
 
 /* PC update */
 /* 10 Points */
-void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char
-Zero,unsigned *PC) {
+void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char Zero,unsigned *PC) {
 	*PC += 4;
 	if (Jump) {
-		*PC = ((*PC & 0xF0000000) + jsec) << 2;	//first 4 bits of pc, jsec, 2 bits of 0
+		*PC = (*PC & 0xF0000000) + (jsec << 2);	//first 4 bits of pc, jsec, 2 bits of 0
 	} else {
 		if (Branch && Zero)
 			*PC += (extended_value << 2);
