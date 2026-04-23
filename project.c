@@ -73,7 +73,7 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero) /
 
 /* instruction fetch */
 /* 10 Points */
-int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction) // Trevor
+int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction) // Treycen
 {
 
 	return 0;
