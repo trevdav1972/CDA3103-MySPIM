@@ -190,7 +190,11 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 /* 10 Points */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem) // Trevor
 {
-  
+	if (ALUresult < 0 || (ALUresult >> 2) >= MEMSIZE)	return 1;	//address out of bounds
+	
+	if ( MemRead ) *memdata = Mem(ALUresult);	//load from memory
+	
+	if ( MemWrite ) Mem(ALUresult) = data2;	//store to memory
 	return 0;
 }
 
