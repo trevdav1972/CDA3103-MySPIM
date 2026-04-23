@@ -59,7 +59,7 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
   // Not
   if (ALUControl == 7) { 
     // Get ALUResult
-    *ALUresult ~A;
+    *ALUresult = ~A;
   }
 
   // If ALUResult == 0 return Var ZERO = 1, if anything else var is zero
@@ -74,8 +74,8 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 /* instruction fetch */
 /* 10 Points */
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction) {
-	if (PC < 0 || (PC >> 2) >= MEMSIZE)	return 1;	//address out of bounds
-	*instruction = Mem(PC);
+	if (PC < 0/* || (PC >> 2) >= MEMSIZE*/)	return 1;	//address out of bounds
+	*instruction = MEM(PC);
 	return 0;
 }
 
@@ -99,17 +99,17 @@ void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsi
 int instruction_decode(unsigned op, struct_controls *controls)  {
 	//set base controls to zero
 	controls -> RegDst = 0;
-    cntrols -> Jump = 0;
+    controls -> Jump = 0;
 	controls -> Branch = 0;
     controls -> MemRead = 0;
-    controls -> MemToReg = 0;
+    controls -> MemtoReg = 0;
     controls -> ALUOp = 0;
     controls -> MemWrite = 0;
     controls -> ALUSrc = 0;
     controls -> RegWrite = 0;
 
 	//assign proper controls per opcode
-	switch op {
+	switch (op) {
 		case 0:  //R-Type
 			controls -> RegDst = 1;
 	        controls -> ALUOp = 7;
@@ -141,7 +141,7 @@ int instruction_decode(unsigned op, struct_controls *controls)  {
 		    break;
 		case 35:  //lw  load word
 		    controls -> MemRead = 1;
-		    controls -> MemToReg = 1;
+		    controls -> MemtoReg = 1;
 		    controls -> ALUSrc = 1;
 		    controls -> RegWrite = 1;
 			break;
@@ -184,11 +184,11 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 /* Read / Write Memory */
 /* 10 Points */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem) {
-	if (ALUresult < 0 || (ALUresult >> 2) >= MEMSIZE)	return 1;	//address out of bounds
+	if (ALUresult < 0/* || (ALUresult >> 2) >= MEMSIZE*/)	return 1;	//address out of bounds
 	
-	if ( MemRead ) *memdata = Mem(ALUresult);	//load from memory
+	if ( MemRead ) *memdata = MEM(ALUresult);	//load from memory
 	
-	if ( MemWrite ) Mem(ALUresult) = data2;	//store to memory
+	if ( MemWrite ) MEM(ALUresult) = data2;	//store to memory
 	return 0;
 }
 
