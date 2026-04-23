@@ -74,7 +74,7 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 /* instruction fetch */
 /* 10 Points */
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction) {
-	if (PC < 0/* || (PC >> 2) >= MEMSIZE*/)	return 1;	//address out of bounds
+	if ((int)PC < 0/* || (PC >> 2) >= MEMSIZE*/)	return 1;	//address out of bounds
 	*instruction = MEM(PC);
 	return 0;
 }
@@ -184,7 +184,7 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 /* Read / Write Memory */
 /* 10 Points */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem) {
-	if (ALUresult < 0/* || (ALUresult >> 2) >= MEMSIZE*/)	return 1;	//address out of bounds
+	if ((int)ALUresult < 0/* || (ALUresult >> 2) >= MEMSIZE*/)	return 1;	//address out of bounds
 	
 	if ( MemRead ) *memdata = MEM(ALUresult);	//load from memory
 	
