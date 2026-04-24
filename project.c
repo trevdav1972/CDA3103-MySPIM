@@ -188,7 +188,7 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 /* Read / Write Memory */
 /* 10 Points */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem) {
-	if ((int)ALUresult < 0/* || (ALUresult >> 2) >= MEMSIZE*/)	return 1;	//address out of bounds
+	if ((int)ALUresult < 0 || (int)ALUresult%4 != 0)	return 1;	//address out of bounds or not word aligned
 	
 	if ( MemRead ) *memdata = MEM(ALUresult);	//load from memory
 	
