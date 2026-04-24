@@ -188,15 +188,14 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 /* Read / Write Memory */
 /* 10 Points */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem) {
-	if (ALUresult > 0xFFFF)	return 1;	//address out of bounds 
 	
 	if ( MemRead ) {
-		if (ALUresult%4 != 0)	return 1;
+		if (ALUresult%4 != 0 || ALUresult > 0xFFFF)	return 1;
 		*memdata = MEM(ALUresult);	//load from memory
 	}
 	
 	if ( MemWrite ) {
-		if (ALUresult%4 != 0)	return 1;
+		if (ALUresult%4 != 0 || ALUresult > 0xFFFF)	return 1;
 		MEM(ALUresult) = data2;	//store to memory
 	}
 	return 0;
@@ -213,11 +212,9 @@ void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,
 /* 10 Points */
 void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char Zero,unsigned *PC) {
 	*PC += 4;
-	if (Jump) {
-		*PC = (*PC & 0xF0000000) + (jsec << 2);	//first 4 bits of pc, jsec, 2 bits of 0
-	} else {
-		if (Branch && Zero)
+	if (Jump)
+		*PC = (*PC & 0xF0000000) | (jsec << 2);	//first 4 bits of pc, jsec, 2 bits of 0
+	else if (Branch/* && Zero*/)
 			*PC += (extended_value << 2);
-	}
 }
 
