@@ -74,7 +74,8 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 /* instruction fetch */
 /* 10 Points */
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction) {
-	if ((int)PC < 0/* || (PC >> 2) >= MEMSIZE*/)	return 1;	//address out of bounds
+	if ((int)PC < 0 || 0 /*check upper bound idk*/)	return 1;	//address out of bounds
+	if ((int)PC%4 != 0 )	return 1;	//not word aligned
 	*instruction = MEM(PC);
 	return 0;
 }
@@ -90,7 +91,7 @@ void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsi
   *r2 = (instruction << 11) >> 27;  //instruction [20-16]
   *r3 = (instruction << 16) >> 27;  //instruction [15-11]
 	
-  *funct = (instruction >> 26) << 26;  //instruction [5-0]
+  *funct = (instruction << 26) >> 26;  //instruction [5-0]
   *offset = (instruction << 16) >> 16;	//instruction [15-0]
 }
 
@@ -165,12 +166,9 @@ void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigne
 /* Sign Extend */
 /* 10 Points */
 void sign_extend(unsigned offset,unsigned *extended_value) {
-	//if number is positive, no additional logic needed
-	if (offset <= 0x8000) {
-		*extended_value = offset;
-	} else {	//if number is negative, add leading ones to retain value
+	*extended_value = offset;	//if number is positive, no additional logic needed
+	if ((int)offset < 0)		//if it's negative, add leading 1's to retain negative value
 		*extended_value = offset + 0xFFFF0000;
-	}
 }
 
 /* ALU operations */
@@ -188,11 +186,17 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 /* Read / Write Memory */
 /* 10 Points */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem) {
-	if ((int)ALUresult < 0 || (int)ALUresult%4 != 0)	return 1;	//address out of bounds or not word aligned
+	if ((int)ALUresult < 0 || 0idk find the upper bound*/)	return 1;	//address out of bounds
 	
-	if ( MemRead ) *memdata = MEM(ALUresult);	//load from memory
+	if ( MemRead ) {
+		if ((int)ALUresult%4 != 0)	return 1;
+		*memdata = MEM(ALUresult);	//load from memory
+	}
 	
-	if ( MemWrite ) MEM(ALUresult) = data2;	//store to memory
+	if ( MemWrite ) {
+		if ((int)ALUresult%4 != 0)	return 1;
+		MEM(ALUresult) = data2;	//store to memory
+	}
 	return 0;
 }
 
