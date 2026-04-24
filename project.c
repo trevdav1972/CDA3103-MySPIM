@@ -74,7 +74,7 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 /* instruction fetch */
 /* 10 Points */
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction) {
-	if (ALUresult > (65536 >> 2)-4)	return 1;	//address out of bounds
+	if (PC > (65536 >> 2)-4)	return 1;	//address out of bounds
 	if (PC%4 != 0 )	return 1;	//not word aligned
 	*instruction = MEM(PC);
 	return 0;
