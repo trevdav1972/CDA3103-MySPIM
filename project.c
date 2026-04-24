@@ -11,13 +11,13 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
   }
   
   //Subtract
-  if (ALUControl == 1) { 
+  else if (ALUControl == 1) { 
     // Get ALUResult
     *ALUresult = A - B; 
   }
   
   // Set less than - signed
-  if (ALUControl == 2) { 
+  else if (ALUControl == 2) { 
     // Get ALUResult
     if ((int)A < (int)B) {
       *ALUresult = 1;
@@ -28,7 +28,7 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
   }
 
   // Set less than - unsigned
-  if (ALUControl == 3) { 
+  else if (ALUControl == 3) { 
     // Get ALUResult
     if (A < B) {
       *ALUresult = 1;
@@ -39,25 +39,25 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
   }
 
   // Perform And operation
-  if (ALUControl == 4) { 
+  else if (ALUControl == 4) { 
     // Get ALUResult
     *ALUresult = A & B;
   }
 
   // Perform Or operation
-  if (ALUControl == 5) { 
+  else if (ALUControl == 5) { 
     // Get ALUResult
     *ALUresult = A | B;
   }
 
   // Shift Left
-  if (ALUControl == 6) { 
+  else if (ALUControl == 6) { 
     // Get ALUResult
     *ALUresult << 16;
   }
 
   // Not
-  if (ALUControl == 7) { 
+  else if (ALUControl == 7) { 
     // Get ALUResult
     *ALUresult = ~A;
   }
@@ -175,9 +175,14 @@ void sign_extend(unsigned offset,unsigned *extended_value) {
 
 /* ALU operations */
 /* 10 Points */
-int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero) // Trevor
-{
+int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero) {	
+	if ( ALUop < 0 || ALUop > 7 )	return 1;	//I don't think that can happen though
 
+	unsigned p2 = ( !ALUsrc ) ? B : extended_value;
+	
+	if ( !( funct == 0b100000 || funct == 0b100010 || funct == 0b100100 || funct == 0b100101 || funct == 0b101010 || funct == 0b101011 ) )
+		return 1;	//invalid funct code 
+	ALU( A, p2, ALUControl, ALUresult, Zero);
 	return 0;
 }
 
