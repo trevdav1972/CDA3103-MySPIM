@@ -4,20 +4,21 @@
 /* 10 Points */
 void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 {
+	*ALUresult = 0;
   // ADD
-  if (ALUControl == 0) { 
+  if (ALUControl == 0 || ALUControl == 32) { 
     // Get ALUResult
     *ALUresult = A + B;
   }
   
   //Subtract
-  else if (ALUControl == 1) { 
+  else if (ALUControl == 1 || ALUControl == 34) { 
     // Get ALUResult
     *ALUresult = A - B; 
   }
   
   // Set less than - signed
-  else if (ALUControl == 2) { 
+  else if (ALUControl == 2 || ALUControl == 42) { 
     // Get ALUResult
     if ((int)A < (int)B) {
       *ALUresult = 1;
@@ -28,7 +29,7 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
   }
 
   // Set less than - unsigned
-  else if (ALUControl == 3) { 
+  else if (ALUControl == 3 || ALUControl == 43) { 
     // Get ALUResult
     if (A < B) {
       *ALUresult = 1;
@@ -39,21 +40,21 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
   }
 
   // Perform And operation
-  else if (ALUControl == 4) { 
+  else if (ALUControl == 4 || ALUControl == 36) { 
     // Get ALUResult
     *ALUresult = A & B;
   }
 
   // Perform Or operation
-  else if (ALUControl == 5) { 
+  else if (ALUControl == 5 || ALUControl == 37) { 
     // Get ALUResult
     *ALUresult = A | B;
   }
 
-  // Shift Left
+  // Load Upper Immediate
   else if (ALUControl == 6) { 
     // Get ALUResult
-    *ALUresult << 16;
+    *ALUresult = B<< 16;
   }
 
   // Not
@@ -74,7 +75,7 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 /* instruction fetch */
 /* 10 Points */
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction) {
-	if (PC > (65536 >> 2)-4)	return 1;	//address out of bounds
+	if (PC > 0xFFFF)	return 1;	//address out of bounds
 	if (PC%4 != 0 )	return 1;	//not word aligned
 	*instruction = MEM(PC);
 	return 0;
@@ -137,7 +138,8 @@ int instruction_decode(unsigned op, struct_controls *controls)  {
 		    controls -> RegWrite = 1;
 		    break;
 		case 15:  //lui  load upper immediate
-		    controls -> ALUSrc = 1;
+		    controls -> ALUOp = 6;
+			controls -> ALUSrc = 1;
 		    controls -> RegWrite = 1;
 		    break;
 		case 35:  //lw  load word
@@ -176,17 +178,17 @@ void sign_extend(unsigned offset,unsigned *extended_value) {
 int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero) {	
 	if ( ALUOp < 0 || ALUOp > 7 )	return 1;	//I don't think that can happen though
 	
-	if ( !( ALUOp == 0 || funct == 0b0100000 || funct == 0b0100010 || funct == 0b0100100 || funct == 0b0100101 || funct == 0b0101010 || funct == 0b0101011 ) )
+	if ( !( ALUOp == 0 || funct == 32 || funct == 34 || funct == 36 || funct == 37 || funct == 42 || funct == 43 ) )
 		return 1;	//invalid funct code 
    
-	ALU( data1, ( !ALUSrc ) ? data2 : extended_value, ALUOp, ALUresult, Zero);
+	ALU( data1, ( !ALUSrc ) ? data2 : extended_value, (ALUOp == 7) ? funct : ALUOp, ALUresult, Zero);
 	return 0;
 }
 
 /* Read / Write Memory */
 /* 10 Points */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem) {
-	if (ALUresult > (65536 >> 2)-4)	return 1;	//address out of bounds 
+	if (ALUresult > 0xFFFF)	return 1;	//address out of bounds 
 	
 	if ( MemRead ) {
 		if (ALUresult%4 != 0)	return 1;
