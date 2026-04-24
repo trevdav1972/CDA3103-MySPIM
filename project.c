@@ -74,8 +74,8 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 /* instruction fetch */
 /* 10 Points */
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction) {
-	if ((int)PC < 0 || 0 /*check upper bound idk*/)	return 1;	//address out of bounds
-	if ((int)PC%4 != 0 )	return 1;	//not word aligned
+	if (ALUresult > (65536 >> 2)-4)	return 1;	//address out of bounds
+	if (PC%4 != 0 )	return 1;	//not word aligned
 	*instruction = MEM(PC);
 	return 0;
 }
@@ -186,15 +186,15 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 /* Read / Write Memory */
 /* 10 Points */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem) {
-	if ((int)ALUresult < 0 || 0idk find the upper bound*/)	return 1;	//address out of bounds
+	if (ALUresult > (65536 >> 2)-4)	return 1;	//address out of bounds 
 	
 	if ( MemRead ) {
-		if ((int)ALUresult%4 != 0)	return 1;
+		if (ALUresult%4 != 0)	return 1;
 		*memdata = MEM(ALUresult);	//load from memory
 	}
 	
 	if ( MemWrite ) {
-		if ((int)ALUresult%4 != 0)	return 1;
+		if (ALUresult%4 != 0)	return 1;
 		MEM(ALUresult) = data2;	//store to memory
 	}
 	return 0;
