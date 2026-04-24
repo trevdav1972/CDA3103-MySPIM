@@ -176,13 +176,12 @@ void sign_extend(unsigned offset,unsigned *extended_value) {
 /* ALU operations */
 /* 10 Points */
 int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero) {	
-	if ( ALUop < 0 || ALUop > 7 )	return 1;	//I don't think that can happen though
-
-	unsigned p2 = ( !ALUsrc ) ? B : extended_value;
+	if ( ALUOp < 0 || ALUOp > 7 )	return 1;	//I don't think that can happen though
 	
-	if ( !( funct == 0b100000 || funct == 0b100010 || funct == 0b100100 || funct == 0b100101 || funct == 0b101010 || funct == 0b101011 ) )
+	if ( !( ALUOp == 0 || funct == 0b0100000 || funct == 0b0100010 || funct == 0b0100100 || funct == 0b0100101 || funct == 0b0101010 || funct == 0b0101011 ) )
 		return 1;	//invalid funct code 
-	ALU( A, p2, ALUControl, ALUresult, Zero);
+   
+	ALU( data1, ( !ALUSrc ) ? data2 : extended_value, ALUOp, ALUresult, Zero);
 	return 0;
 }
 
