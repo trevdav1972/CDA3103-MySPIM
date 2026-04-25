@@ -122,6 +122,7 @@ int instruction_decode(unsigned op, struct_controls *controls)  {
 		    break;
 		case 4:  //beq  branch on equal
 		    controls -> Branch = 1;
+			controls -> ALUOp = 1; 
 		    break;
 		case 8:  //addi  add immediate
 		    controls -> ALUSrc = 1;
@@ -170,7 +171,7 @@ void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigne
 void sign_extend(unsigned offset,unsigned *extended_value) {
 	*extended_value = offset;	//if number is positive, no additional logic needed
 	if ((int)offset < 0)		//if it's negative, add leading 1's to retain negative value
-		*extended_value = offset + 0xFFFF0000;
+		*extended_value = offset | 0xFFFF0000;
 }
 
 /* ALU operations */
@@ -178,8 +179,7 @@ void sign_extend(unsigned offset,unsigned *extended_value) {
 int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero) {	
 	if ( ALUOp < 0 || ALUOp > 7 )	return 1;	//I don't think that can happen though
 	
-	if ( !( ALUOp == 0 || funct == 32 || funct == 34 || funct == 36 || funct == 37 || funct == 42 || funct == 43 ) )
-		return 1;	//invalid funct code 
+	if ((ALUOp == 0 && !ALUSrc) && !(funct == 0b0100000 || funct == 0b0100010 || funct == 0b0100100 || funct == 0b0100101 || funct == 0b0101010 || funct == 0b0101011)) return 1;
    
 	ALU( data1, ( !ALUSrc ) ? data2 : extended_value, (ALUOp == 7) ? funct : ALUOp, ALUresult, Zero);
 	return 0;
@@ -214,7 +214,7 @@ void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char 
 	*PC += 4;
 	if (Jump)
 		*PC = (*PC & 0xF0000000) | (jsec << 2);	//first 4 bits of pc, jsec, 2 bits of 0
-	else if (Branch/* && Zero*/)
+	else if (Branch && Zero)
 			*PC += (extended_value << 2);
 }
 
