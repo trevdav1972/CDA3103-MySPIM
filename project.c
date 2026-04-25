@@ -122,7 +122,7 @@ int instruction_decode(unsigned op, struct_controls *controls)  {
 		    break;
 		case 4:  //beq  branch on equal
 		    controls -> Branch = 1;
-			controls -> ALUOp = 1; 
+			controls -> ALUOp = 1;
 		    break;
 		case 8:  //addi  add immediate
 		    controls -> ALUSrc = 1;
@@ -168,21 +168,35 @@ void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigne
 
 /* Sign Extend */
 /* 10 Points */
-void sign_extend(unsigned offset,unsigned *extended_value) {
-	*extended_value = offset;	//if number is positive, no additional logic needed
-	if ((int)offset < 0)		//if it's negative, add leading 1's to retain negative value
-		*extended_value = offset | 0xFFFF0000;
+void sign_extend(unsigned offset, unsigned *extended_value) {
+    // Check if the 16th bit is a 1 (meaning the 16-bit offset is negative)
+    if (offset & 0x8000) {
+        // It's negative: Add the leading 1s to extend it to 32 bits
+        *extended_value = offset | 0xFFFF0000;
+    } else {
+        // It's positive: Keep the leading 0s
+        *extended_value = offset & 0x0000FFFF;
+    }
 }
 
 /* ALU operations */
 /* 10 Points */
-int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero) {	
-	if ( ALUOp < 0 || ALUOp > 7 )	return 1;	//I don't think that can happen though
+int ALU_operations(unsigned data1, unsigned data2, unsigned extended_value, unsigned funct, char ALUOp, char ALUSrc, unsigned *ALUresult, char *Zero) {	
 	
-	if ((ALUOp == 0 && !ALUSrc) && !(funct == 0b0100000 || funct == 0b0100010 || funct == 0b0100100 || funct == 0b0100101 || funct == 0b0101010 || funct == 0b0101011)) return 1;
+    // 1. Check for illegal ALUOp codes
+	if (ALUOp < 0 || ALUOp > 7) return 1; 
+	
+    // 2. ONLY check for valid funct codes if the instruction is R-Type (ALUOp == 7)
+	if (ALUOp == 7) {
+        if (!(funct == 32 || funct == 34 || funct == 36 || funct == 37 || funct == 42 || funct == 43)) {
+		    return 1; // invalid funct code, trigger halt
+        }
+    }
    
-	ALU( data1, ( !ALUSrc ) ? data2 : extended_value, (ALUOp == 7) ? funct : ALUOp, ALUresult, Zero);
-	return 0;
+    // 3. Call the ALU
+	ALU(data1, (!ALUSrc) ? data2 : extended_value, (ALUOp == 7) ? funct : ALUOp, ALUresult, Zero);
+	
+    return 0;
 }
 
 /* Read / Write Memory */
@@ -210,11 +224,16 @@ void write_register(unsigned r2,unsigned r3,unsigned memdata,unsigned ALUresult,
 
 /* PC update */
 /* 10 Points */
-void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char Zero,unsigned *PC) {
-	*PC += 4;
-	if (Jump)
-		*PC = (*PC & 0xF0000000) | (jsec << 2);	//first 4 bits of pc, jsec, 2 bits of 0
-	else if (Branch && Zero)
-			*PC += (extended_value << 2);
+void PC_update(unsigned jsec, unsigned extended_value, char Branch, char Jump, char Zero, unsigned *PC) {
+    // 1. Update PC to PC + 4
+    *PC += 4;
+    
+    // 2. Unconditional Jump
+    if (Jump) {
+        *PC = (*PC & 0xF0000000) | (jsec << 2);	// first 4 bits of PC+4, jsec, 2 bits of 0
+    } 
+    // 3. Conditional Branch (MUST check the Zero flag!)
+    else if (Branch && Zero) {
+        *PC += (extended_value << 2);
+    }
 }
-
